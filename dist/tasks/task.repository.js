@@ -19,24 +19,26 @@ let TaskRepository = class TaskRepository extends typeorm_1.Repository {
         super(task_entity_1.Task, dataSource.createEntityManager());
         this.dataSource = dataSource;
     }
-    async getTasks(filterDto) {
+    async getTasks(filterDto, user) {
         const { search, status } = filterDto;
         const query = this.createQueryBuilder('task');
+        query.where({ user });
         if (status) {
             query.andWhere('task.status = :status', { status });
         }
         if (search) {
-            query.andWhere('LOWER(task.title) LIKE LOWER(:search) OR LOWER(task.description) LIKE LOWER(:search)', { search: `%${search}%` });
+            query.andWhere('(LOWER(task.title) LIKE LOWER(:search) OR LOWER(task.description) LIKE LOWER(:search))', { search: `%${search}%` });
         }
         const tasks = await query.getMany();
         return tasks;
     }
-    async createTask(createTaskDto) {
+    async createTask(createTaskDto, user) {
         const { title, description } = createTaskDto;
         const taks = this.create({
             title,
             description,
-            status: task_status_enum_1.TaskStatus.OPEN
+            status: task_status_enum_1.TaskStatus.OPEN,
+            user,
         });
         await this.save(taks);
         return taks;

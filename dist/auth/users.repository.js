@@ -23,8 +23,6 @@ let UserRepository = class UserRepository extends typeorm_1.Repository {
         const { username, password } = authCredentialsDto;
         const salt = await brypt.genSalt();
         const hashedPassword = await brypt.hash(password, salt);
-        console.log('hashedPassword', hashedPassword);
-        console.log('salt', salt);
         const data = this.create({ username, password: hashedPassword });
         try {
             await this.save(data);

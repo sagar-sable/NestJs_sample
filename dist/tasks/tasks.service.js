@@ -16,27 +16,38 @@ let TasksService = class TasksService {
     constructor(taskRepository) {
         this.taskRepository = taskRepository;
     }
-    async getTaskById(id) {
-        const found = await this.taskRepository.findOne({ where: { id } });
-        if (!found) {
-            throw new common_1.NotFoundException(`Task with "${id} not found"`);
+    async getTaskById(id, user) {
+        try {
+            const found = await this.taskRepository.findOne({ where: { id, user } });
+            console.log(found);
+            if (!found) {
+                throw new common_1.NotFoundException("Task not found");
+            }
+            return found;
         }
-        return found;
-    }
-    createTask(createTaskDto) {
-        return this.taskRepository.createTask(createTaskDto);
-    }
-    async deleteTaskById(id) {
-        const result = await this.taskRepository.delete(id);
-        if (result.affected === 0) {
-            throw new common_1.NotFoundException(`Task with ID ${id} not found`);
+        catch (e) {
+            throw new common_1.NotFoundException("Task not found");
         }
     }
-    async getAllTasks(filterDto) {
-        return this.taskRepository.getTasks(filterDto);
+    createTask(createTaskDto, user) {
+        return this.taskRepository.createTask(createTaskDto, user);
     }
-    async updateTaskStatus(id, staus) {
-        const task = await this.getTaskById(id);
+    async deleteTaskById(id, user) {
+        try {
+            const result = await this.taskRepository.delete({ id, user });
+            if (result.affected === 0) {
+                throw new common_1.NotFoundException("Task not found");
+            }
+        }
+        catch (e) {
+            throw new common_1.NotFoundException("Task not found");
+        }
+    }
+    async getAllTasks(filterDto, user) {
+        return this.taskRepository.getTasks(filterDto, user);
+    }
+    async updateTaskStatus(id, staus, user) {
+        const task = await this.getTaskById(id, user);
         task.status = staus;
         await this.taskRepository.save(task);
         return task;
