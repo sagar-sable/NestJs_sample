@@ -12,6 +12,7 @@ const tasks_module_1 = require("./tasks/tasks.module");
 const typeorm_1 = require("@nestjs/typeorm");
 const auth_module_1 = require("./auth/auth.module");
 const config_1 = require("@nestjs/config");
+const config_schema_1 = require("./config.schema");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -20,7 +21,8 @@ exports.AppModule = AppModule = __decorate([
         imports: [
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
-                envFilePath: [`.env.stage.${process.env.STAGE}`]
+                envFilePath: [`.env.stage.${process.env.STAGE}`],
+                validationSchema: config_schema_1.configValidationSchema,
             }),
             tasks_module_1.TasksModule,
             typeorm_1.TypeOrmModule.forRootAsync({
